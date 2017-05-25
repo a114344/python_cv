@@ -24,3 +24,20 @@ def compute_harris_response(img, sigma=3):
     Wtr = Wxx + Wyy
 
     return Wdet / Wtr
+
+
+def get_harris_poins(harrisimg, min_dist=10, threshold=0.1):
+    """Return corners for a Harris response image. min_dist
+       is the minumum number of pixels separating corners and image
+       boundary.
+    """
+
+    # find top corner candidates above threshold
+    corner_threshold = harrisimg.max() * threshold
+    harrisimg_t = (harrisimg > corner_threshold) * 1
+
+    # get coordinates of candidates
+    coords = array(harrisimg_t.nonzero()).T
+
+    # ...and their values
+    candidate_values = 
