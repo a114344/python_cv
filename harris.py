@@ -114,3 +114,74 @@ def match(desc1, desc2, threshold=0.5):
     matchscores = ndx[:, 0]
 
     return matchscores
+
+
+def match_twosided(desc1, desc2, threshold=0.5):
+    """Two sided symmetric version of the match function.
+    """
+
+    matches_12 = match(desc1, desc2, threshold)
+    matches_21 = match(desc2, desc1, threshold)
+
+    ndx_12 = np.where(matches_12 >= 0)[0]
+
+    # Remove matches that are not symmetric
+    for n in ndx_12:
+        if matches_21[matches_12[n]] != n:
+            matches_12[n] = -1
+
+    return matches_12
+
+
+def append_images(img1, img2):
+    """Return an image that append sthe two images side by side
+    """
+
+    # Select the image wiht the fewest rows and fill in enough empty rows
+    rows1, rows2 = (img1.shape[0], img2.shape[0])
+
+    if rows1 < rows2:
+        img1 = np.concatenate((img1,
+                               np.zeros((rows2-rows1,
+                                         img1.shape[1]))),
+                              axis=0)
+    elif rows1 > rows2:
+        img2 = np.concatenate((img2,
+                               np.zeros((rows1-rows2,
+                                         img2.shape[1]))),
+                              axis=0)
+    # No else needed because if neither of the above evaluate to True
+    # no filling is required.
+
+    return np.concatenate((img1, img2), axis=1)
+
+
+def plot_matches(img1, img2, locs1, locs2, matchscores, show_below=True):
+    """Show a figure with lines joining the accepted matches.
+
+       Input: img1, img2 (images as arrays),
+
+              locs1, locs2 (feature locations),
+
+              matchscores (as output from match() function),
+
+              show_below (if images should be shown below matches).
+    """
+
+    img3 = append_images(img1, img2)
+
+    if show_below:
+        img3 = np.vstack((img3, img3))
+
+    plt.imshow(img3)
+
+    cols1 = img1.shape[1]
+    for index, match in enumerate(matchscores):
+        if match > 0:
+            plt.plot([locs1[index][1],
+                      locs2[match][1] + cols1],
+                     [locs1[index][0],
+                     locs2[match][0]], 'c')
+    plt.axis = ('off')
+
+    # finish me
