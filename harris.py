@@ -185,3 +185,22 @@ def plot_matches(img1, img2, locs1, locs2, matchscores, show_below=True):
     plt.axis = ('off')
 
     # finish me
+    wid = 5
+    harrisimg1 = compute_harris_response(img1, 5)
+    filtered_coords1 = get_harris_points(harrisimg1, wid+1)
+    d1 = get_descriptors(img1, filtered_coords1, wid)
+
+    harrisimg2 = compute_harris_response(img2, 5)
+    filtered_coords2 = get_harris_points(harrisimg2, wid+1)
+    d2 = get_descriptors(img2, filtered_coords2, wid)
+
+    print('starting matching')
+    matches = match_twosided(d1, d2)
+
+    plt.figure()
+    plt.gray()
+    plot_matches(img1, img2, filtered_coords1, filtered_coords2, matches)
+
+    plt.show()
+
+    return True
