@@ -57,3 +57,37 @@ def plot_features(im, locs, circle=False):
         else:
             plt.plot(locs[:, 0], locs[:, 1], 'ob')
         plt.axis = ('off')
+
+    return True
+
+
+def match(desc1, desc2):
+    """For each descriptor in the first image select its match in
+       the second image.
+
+       Input: desc1 (descriptors for first image)
+              desc2 (descriptors for second image)
+    """
+
+    desc1 = np.array([d / np.linalg.norm(d) for d in desc1])
+    desc2 = np.array([d / np.linalg.norm(d) for d in desc2])
+
+    dist_ratio = 0.6
+    desc1_size = desc1.shape
+
+    matchscores = np.zeros((desc1_size[0], 1), 'np.int')
+    desc2t = desct2.T
+
+    for i in range(desc1_size[0]):
+        dotprods = np.dot(desc1[i, :], desc2t)
+        dotprods = .99999 * dotprods
+
+        # inverse cosine and sort, return index for features in second
+        # image
+        indx = np.argsort(np.arccos(dotprods))
+
+        # check if nearest neighbor has angle less than dist_ratio * 2nd
+        if np.arccos(dotprods)[indx[0]] < dist_ratio * np.arccos(dotprods)[indx[1]]:
+            matchscores[i] = int[indx[0]]
+
+    return matchscores
