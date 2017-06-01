@@ -24,4 +24,4 @@ if __name__ == '__main__':
     # Query for images
     url = 'http://www.panoramio.com/map/get_panoramas.php?order=popularity&set=public&from=0&to=20&minx=-77.037564&miny=38.896662&maxx=-77.035564&maxy=38.89662&size=medium'
 
-get_white_house_images(url)
+    get_white_house_images(url)
