@@ -76,7 +76,7 @@ def match(desc1, desc2):
     desc1_size = desc1.shape
 
     matchscores = np.zeros((desc1_size[0], 1), 'np.int')
-    desc2t = desct2.T
+    desc2t = desc2.T
 
     for i in range(desc1_size[0]):
         dotprods = np.dot(desc1[i, :], desc2t)
@@ -91,3 +91,17 @@ def match(desc1, desc2):
             matchscores[i] = int[indx[0]]
 
     return matchscores
+
+def match_twosided(desc1, desc2):
+
+    matches_12 = match(desc1, desc2)
+    matches_21 = match(desc2, desc1)
+
+    ndx_12 = matches_12.nonzero()[0]
+
+    # remove non-symmetric edges
+    for n in ndx_12:
+        if matches_21[int(matches_12[n])] != n:
+            matches_12[n] = 0
+
+    return matches_12
