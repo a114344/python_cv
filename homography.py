@@ -76,3 +76,47 @@ def H_from_points(fp, tp):
 
     # Normalize and return
     return H / H[2, 2]
+
+
+def Haffine_from_points(fp, tp):
+    """Find H, affine transformation, such that tp is an affine
+
+       transform of fp.
+    """
+
+    if fp.shape != tp.shape:
+        raise RuntimeError('number of points does not match')
+
+    # Condition points
+    # --from points--
+    m = np.mean(fp[:2], axis=1)
+    maxstd = np.max(np.std(fp[:2], axis=1)) + 1e-9
+    C1 = np.diag([1 / maxstd, 1 / maxstd, 1])
+    C1[0][2] = -m[0] / maxstd
+    C1[1][2] = -m[1] / maxstd
+    fp_cond = np.dot(C1, fp)
+
+    # --to points--
+    m = np.mean(tp[:2], axis=1)
+    C2 = C1.copy()
+    C2[0][2] = -m[0] / maxstd
+    C2[1][2] = -m[1] / maxstd
+    tp_cond = np.dot(C2, tp)
+
+    # Conditioned points have mean zero, so translation is zero
+    A = np.concatenate((fp_cond[:2], tp_cond[:2]), axis=0)
+    U, S, V = np.linalg.svd(A.T)
+
+    # Create B and C matrices as Hartley-Zisserman (2nd ed) p 130
+    tmp = V[:2].T
+    B = tmp[:2]
+    C = tmp[2:4]
+
+    tmp2 = np.concatenate((np.dot(C, np.linalg.pinv(B)),
+                           np.zeros((2, 1))), axis=1)
+    H = np.vstack((tmp2, [0, 0, 1]))
+
+    # De-condition
+    H = np.dot(np.linalg.inv(C2), np.dot(H, C1))
+
+    return H / H[2, 2]
