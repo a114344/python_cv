@@ -5,7 +5,9 @@ from scipy import ndimage
 
 def image_in_image(im1, im2, tp):
     """Put im1 in im2 with an affine transformation such that the corners
+
        are as close to tp as possible. tp are homogenous and counterclockwise
+
        from top left.
     """
 
@@ -23,3 +25,19 @@ def image_in_image(im1, im2, tp):
     alpha = (im1_t > 0)
 
     return (1-alpha) * im2 + alpha * im1_t
+
+
+def alpha_for_triangle(points, m, n):
+    """Creates alpha map of size (m, n) for a triangle defined by points
+
+       given in normalized homogenous format.
+
+    """
+    alpha = np.zeros(m, n)
+    for i in range(np.min(points[0]), np.max(points[0])):
+        for j in range(np.min(points[1]), np.max(points[1])):
+            x = np.linalg.solve(points[i, j, 1])
+            if np.min(x) > 0:
+                alpha[i, j] = 1
+
+    return alpha
