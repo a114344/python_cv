@@ -1,5 +1,6 @@
 from homography import Haffine_from_points
 import numpy as np
+from PIL import Image
 from scipy import ndimage
 import matplotlib.delaunay as md
 
@@ -62,3 +63,22 @@ def pw_affine(fromim, toim, fp, tp, tri):
               tp = to pints in hom coordinates
               tri = triangualation
     """
+
+    im = toim.copy()
+
+    # check if image is grayscale or color
+    is_color = len(fromim.shape) == 3
+
+    # Create an image and warp to (needed if iterate colors)
+    im_t = np.zeros(im.shape, 'uint8')
+
+    for t in tri:
+        # Compute affine transoformation
+        H = Haffine_from_points(tp[:, t], fp[:, t])
+
+        if is_color:
+            for col in range(fromim.shape[2]):
+                im_t[:, :, col] = nd.image.affine_transform(fromim[:, :, col],
+                                                            H[:2, :2],
+                                                            (H[0, 2], H[1, 2]),
+                                                            im.shape[:2])
