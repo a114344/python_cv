@@ -1,6 +1,7 @@
 from homography import Haffine_from_points
 import numpy as np
 from scipy import ndimage
+import matplotlib.delaunay as md
 
 
 def image_in_image(im1, im2, tp):
@@ -41,3 +42,23 @@ def alpha_for_triangle(points, m, n):
                 alpha[i, j] = 1
 
     return alpha
+
+
+def triangulate_points(x, y):
+    """Delauney triangulation of 2d points.
+    """
+    centers, edges, tri, neighbors = md.delaunay(x, y)
+
+    return tri
+
+
+def pw_affine(fromim, toim, fp, tp, tri):
+    """Warp particular patches from an image.
+
+       Inputs:
+              fromim = image to Warp
+              toim = destination image
+              fp = from points in hom. coordinates
+              tp = to pints in hom coordinates
+              tri = triangualation
+    """
