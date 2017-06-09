@@ -1,4 +1,5 @@
 from homography import Haffine_from_points
+import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 from scipy import ndimage
@@ -94,3 +95,14 @@ def pw_affine(fromim, toim, fp, tp, tri):
         im[alpha > 0] = im_t[alpha > 0]
 
     return im
+
+
+def plot_mesh(x, y, tri):
+    """Plot triangles.
+    """
+    for t in tri:
+        # Add first point to end
+        t_ext = [t[0], t[1], t[2], t[0]]
+        plt.plot(x[t_ext], y[t_ext], 'r')
+
+    return True
