@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage
 import matplotlib.delaunay as md
+from xml.dom import minidom
 
 
 def image_in_image(im1, im2, tp):
@@ -106,3 +107,22 @@ def plot_mesh(x, y, tri):
         plt.plot(x[t_ext], y[t_ext], 'r')
 
     return True
+
+
+def read_points_from_xml(xmlFileName):
+    """Reads control points for face alignment.
+    """
+    xmldoc = minidom.parse(xmlFileName)
+    facelist = xmldoc.getElementsByTagName('face')
+    faces = {}
+    for xmlFace in facelist:
+        file_name = xmlFace.attributes['file'].value
+        xf = int(xmlFace.attributes['xf'].value)
+        yf = int(xmlFace.attributes['yf'].value)
+        xs = int(xmlFace.attributes['xs'].value)
+        ys = int(xmlFace.attributes['ys'].value)
+        xm = int(xmlFace.attributes['xm'].value)
+        ym = int(xmlFace.attributes['ym'].value)
+        faces[file_name] = np.array([xf, yf, xs, ys, xm, ym])
+
+    return faces
