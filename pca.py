@@ -44,5 +44,5 @@ def pca(X):
         U, S, V = np.linalg.svd(X)
         V = V[:num_data]
 
-    # Return the projection amtrix, the variance, and the mean
+    # Return the projection matrix, the variance, and the mean
     return V, S, mean_X

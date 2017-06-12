@@ -1,6 +1,7 @@
 from scipy import linalg
 import numpy as np
 
+
 def compute_rigid_transform(refpoints, points):
     """Computes rotation, scale and translation for
        aligning points to refpoints.

@@ -118,3 +118,51 @@ def Haffine_from_points(fp, tp):
     H = np.dot(np.linalg.inv(C2), np.dot(H, C1))
 
     return H / H[2, 2]
+
+
+class RansacModel(object):
+    """Class for testing homography fit with ransac.py from
+       http://www.scipy.org/Cookbook/RANSAC
+    """
+
+    def __init__(self, debug=False):
+        self.debug = debug
+
+    def fit(self, data):
+        """Fit homography to four selected correspondences
+        """
+
+        # Transpose to fit H_from_points()
+        data = data.T
+
+        # from points
+        fp = data[:3, :4]
+
+        # target points
+        tp = data[3:, :4]
+
+        # fit homography and return
+        return H_from_points(fp, tp)
+
+    def get_error(self, data, H):
+        """ Apply homography to all correspondences,
+            return error for each transformed point.
+        """
+
+        data = data.T
+
+        # from points
+        fp = data[:3]
+
+        # to points
+        tp = data[3:]
+
+        # transform fp
+        fp_transformed = np.dot(H, fp)
+
+        # normalise hom. coordinates
+        for i in range(3):
+            fp_transformed[i] /= fp_transformed[2]
+
+        # return error per point
+        return np.sqrt(sum((tp - fp_transformed)**2, axis=0))
