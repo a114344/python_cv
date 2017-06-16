@@ -44,6 +44,17 @@ class Camera(object):
 
         return self.K, self.R, self.t
 
+    def center(self):
+        """Compute and return the camera center.
+        """
+        if self.c is not None:
+            return self.c
+        else:
+            # Compute c by factoring
+            self.factor()
+            self.c = -np.dot(self.R.T, self.t)
+            return self.c
+
 
 def rotation_matrix(a):
     """Creates a 3d rotation matrix for a rotation
