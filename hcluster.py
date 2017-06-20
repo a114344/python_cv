@@ -43,6 +43,30 @@ class ClusterNode(object):
                       self.right.get_depth() +
                       self.distance)
 
+    def draw(self, draw, x, y, s, imlist, im):
+        """Draw nodes recursively with image thumbnails
+
+           for leaf nodes.
+        """
+        h1 = int(self.left.get_height() * 20 / 2)
+        h2 = int(self.right.get_height() * 20 / 2)
+        top = y - (h1 - h2)
+        bottom = y + (h1 + h2)
+
+        # verticle line to children
+        draw.line((x, top + h1, x, bottom - h2), fill=(0, 0, 0))
+
+        # horizontal lines
+        ll = self.distance * s
+        draw.line((x, top + h1, x + ll, top + h1), fill=(0, 0, 0))
+        draw.line((x, bottom - h2, x + ll, bottom - h2), fill=(0, 0, 0))
+
+        # draw left and right nodes recursively
+        self.left.draw(draw, x + ll, top + h1, s, imlist, im)
+        self.right.draw(draw, x + ll, bottom - h2, s, imlist, im)
+
+        return True
+
 
 class ClusterLeafNode(object):
     def __init__(self, vec, id):
@@ -61,6 +85,14 @@ class ClusterLeafNode(object):
     def get_depth(self):
         return 0
 
+    def draw(self, draw, x, y, s, imlist, im):
+        nodeim = Image.open(imlist[self.id])
+        nodeim.thumbnail([20, 20])
+        ns = nodeim.size
+        im.paste(nodeim, [int(x),
+                          int(y - ns[1] // 2),
+                          int(x + ns[0]),
+                          int(y + ns[1] - ns[1] // 2)])
 
 def L2dist(v1, v2):
     return np.sqrt(np.sum((v1 - v2)**2))
