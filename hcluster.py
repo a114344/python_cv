@@ -94,6 +94,7 @@ class ClusterLeafNode(object):
                           int(x + ns[0]),
                           int(y + ns[1] - ns[1] // 2)])
 
+
 def L2dist(v1, v2):
     return np.sqrt(np.sum((v1 - v2)**2))
 
