@@ -46,5 +46,37 @@ class Indexer(object):
         # link words to images
         for i in range(nbr_words):
             words = imwords[i]
-            self.con.execute('INSERT INTO imwords(imid, wordid, vocname) VALUES (?, ?, ?)', (imid, word, self.voc.name))
-            
+            self.con.execute(
+                "INSERT INTO imwords(imid, wordid, vocname) VALUES (?, ?, ?)",
+                (imid, wordid, self.voc.name))
+
+        # store word histogram for image
+        # use pickle to encode numpy arrays as strings
+        self.con.execute("""INSERT INTO imhistograms(imid, histogram, vocname)
+                            VALUES (?, ?, ?)""",
+                         (imid, pickle.dumps(imwords, self.voc.name)))
+
+    def is_indexed(self, imname):
+        """Returns True if imname has been indexed
+        """
+        im = self.con.execute("""SELECT rowid
+                                 FROM imlist
+                                 WHERE filename='%s'""" % imname).fetchone()
+
+        return im is not None
+
+
+def get_id(self, imname):
+    """Get an entry id and add if not present
+    """
+
+    cur = self.con.execute(
+        """SELECT rowid from imlist
+           WHERE filename='%s'""" % imname)
+    res = cur.fetchone()
+    if res is None:
+        cur = self.con.execute("""INSERT INTO imlist(filename)
+                                  VALUES ('%s')""" % imname)
+        return cur.lastrowid
+    else:
+        return res[0]
