@@ -80,3 +80,42 @@ def get_id(self, imname):
         return cur.lastrowid
     else:
         return res[0]
+
+
+class Searcher(object):
+
+    def __init__(self, db, voc):
+        """Initialize the name of the db.
+        """
+
+        self.con = sqlite.connect(db)
+        self.voc = voc
+
+    def __del__(self):
+        self.con.close
+
+    def candidates_from_words(self, imword):
+        """Get a list of images containing imword.
+        """
+
+        im_ids = self.con.execute("""SELECT DISTINCT imid from imwords
+                                     WHERE wordid=%d""" % imword).fetchall()
+
+        return[i[0] for i in im_ids]
+
+    def candidates_from_histogram(self, imwords):
+        """Get list of images with similar words.
+        """
+
+        # get the word ids
+        words = imwords.nonzero()[0]
+
+        # find candidates
+        candidates = [self.candidates_from_words(word) for word in words]
+
+        # take all unique words and reverse sort on occurrence
+        tmp = [(w, candidates.count(w)) for w in set(candidates)]
+        tmp.sort(cmp=lambda x, y: cmp(x[1], y[1]), reverse=True)
+
+        return [w[0] for w in tmp]
+        
