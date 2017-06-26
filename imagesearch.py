@@ -1,4 +1,5 @@
 from __future__ import print_function
+import nump as np
 import pickle
 from pysqlite2 import dbapi2 as sqlite
 
@@ -118,4 +119,39 @@ class Searcher(object):
         tmp.sort(cmp=lambda x, y: cmp(x[1], y[1]), reverse=True)
 
         return [w[0] for w in tmp]
-        
+
+    def get_imhistogram(self, imname):
+        """Get the word histogram for an image.
+        """
+
+        im_id = self.con.execute("""
+                                SELECT rowid
+                                FROM imlist
+                                WHERE filename = '%s' """ % imname).fetchone()
+
+        s = self.con.execute("""
+                            SELECT histogram
+                            FROM imhistograms
+                            WHERE rowid = '%d' """ % im_id).fetchone()
+
+        # use pickle to decode numpy arrays from strings
+        return pickle.loads(str(s[0]))
+
+    def query(self, imname):
+        """Find a list of matching images for imname
+        """
+        h = self.candidates_from_histogram()
+
+        matchscores = []
+        for imid in candidates:
+            # get name
+            cand_name = self.con.execute("""
+                                        SELECT filename
+                                        FROM imlist
+                                        WHERE rowid = '%d'""" % imid).fetchone()
+
+            cand_h = self.get_imhistogram(cand_name)
+            cand_dist = np.sqrt(np.sum((h - cand_h) ** 2))
+            matchscores.append((cand_dist, imid))
+
+            return matchscores.sort()
