@@ -1,6 +1,8 @@
 from __future__ import print_function
+import matplotlib.pyplot as plt
 import nump as np
 import pickle
+from PIL import Image
 from pysqlite2 import dbapi2 as sqlite
 
 
@@ -83,6 +85,39 @@ def get_id(self, imname):
         return res[0]
 
 
+def compute_ukbench_score(src, imlist):
+    """Returns the average number of correct
+
+       images on the top four results of queries.
+    """
+    nbr_images = len(imlist)
+    pos = np.zeros((nbr_images, 4))
+    # get first four results for each image
+    for i in range(nbr_images):
+        pos[i] = [w[1] - 1 for w in src.query(imlist[i])[:4]]
+
+    # compute score and return average
+    score = np.array([(pos[i] // 4) == (i // 4)
+                     for i in range(nbr_images)]) * 1.0
+
+    return np.sum(score) / nbr_images
+
+
+def plot_results(src, res):
+    """Show images in result list 'res'.
+    """
+    plt.figure()
+    nbr_results = len(res)
+    for i in range(nbr_results):
+        imname = src.get_filename(res[i])
+        plt.subplot(1, nbr_results, i + 1)
+        plt.imshow(np.array(Image.open(imname)))
+        plt.axis('off')
+    plt.show
+
+    return True
+
+
 class Searcher(object):
 
     def __init__(self, db, voc):
@@ -155,3 +190,12 @@ class Searcher(object):
             matchscores.append((cand_dist, imid))
 
             return matchscores.sort()
+
+    def get_filename(self, imid):
+        """Return filename for an image id.
+        """
+        s = self.con.execute(
+                            """SELECT filename
+                               FROM imlist
+                               WHERE rowid = '%d' """ % imid).fetchone()
+        return s[0]
