@@ -4,6 +4,7 @@
 from __future__ import print_function
 from PIL import Image
 import numpy as np
+import os
 import sift
 
 
@@ -48,4 +49,13 @@ def process_image_dsift(imagename, resultname, size=20, steps=10,
     frame = np.aray([xx, yy, scale * np.ones(xx.shape[0]),
                     np.zeros(xx.shape[0])])
     np.savetxt = ('tmp.frame', frame.T, fmt='%03.3f')
+
+    if force_orienation:
+        cmmd = str('sift ' + imagename + ' --output= ' + resultname +
+                   ' --read-frames = tmp.frame --orientations')
+    else:
+        cmmd = str('sift ' + imagename + ' --output= ' + resultname +
+                   ' --read-frames = tmp.frame')
+    os.system(cmmd)
+    print('processed', imagename, 'to', resultname)
     
