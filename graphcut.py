@@ -1,4 +1,5 @@
 from __future__ import print_function
+import matplotlib.pyplot as plt
 import numpy as np
 from pygraph.classes.digraph import digraph
 from pygraph.algorithms.minmax import maximum_flow
@@ -41,7 +42,7 @@ def build_bayes_graph(im, labels, sigma=1e2, kappa=2):
     sink = m * n + 1
 
     # Normalize
-    for i in rnage(vim.shape[0]):
+    for i in range(vim.shape[0]):
         vim[i] = vim[i] / np.linalg.norm(vim[i])
 
     # got through all nodes and add edges
@@ -56,4 +57,53 @@ def build_bayes_graph(im, labels, sigma=1e2, kappa=2):
     if i % n != 0:
         edge_wt = kappa * np.exp(-1.0 * np.sum((vim[i] - vim[i-1])**2) / sigma)
         gr.add_edge((i, i-1), wt=edge_wt)
-    
+    if (i + 1) % n != 0:
+        edge_wt = kappa * np.exp(-1.0 * np.sum((vim[i] - vim[i+1])**2) / sigma)
+        gr.add_edge((i, i+1), wt=edge_wt)
+    if (i // n) != 0:
+        edge_wt = kappa * np.exp(-1.0 * np.sum((vim[i] - vim[i-n])**2) / sigma)
+        gr.add_edge((i, i+n), wt=edge_wt)
+    if (i // n) != m - 1:
+        edge_wt = kappa * np.exp(-1.0 * np.sum((vim[i] - vim[i+n])**2) / sigma)
+        gr.add_edge((i, i+n), wt=edge_wt)
+
+    return gr
+
+
+def show_labeling(im, labels):
+    """Show image with foreground and background areas.
+
+       foreground: labels = 1
+
+       background: labels = -1
+
+       other: labels = 0
+
+    """
+    plt.imshow(im)
+    plt.contour(labels, [-0.5, 0.5])
+    plt.contourf(labels, [-1, -0.5], colors='b', alpha=.25)
+    plt.contourf(labels, [0.5, 1], colors='r', alpha=.25)
+    plt.axis('off')
+
+    return True
+
+
+def cut_graph(gr, imsize):
+    """Solve for max flow of graph gr and return binary
+
+       labels of resulting segmentation.
+    """
+    m, n = imsize
+    source = m * n
+    sink = m * n + 1
+
+    # cut graph
+    flows, cuts = maximum_flow(gr, source, sink)
+
+    # convert graph to image with labels
+    res = np.zeros(m * n)
+    for pos, labels in np.cuts.items()[:-2]:
+        res[pos] = label
+
+    return res.reshape((m, n))
