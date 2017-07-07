@@ -1,6 +1,7 @@
 from __future__ import division
 import numpy as np
 
+
 def ncut_graph_matrix(im, sigma_d=1e2, sigma_g=1e-2):
     """Create weights for normalized cut. The parameters are
        the weights for pixel distance and pixel similarity.
