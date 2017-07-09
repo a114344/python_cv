@@ -45,3 +45,62 @@ class LKTracker(object):
         self.tracks = [[p] for p in features.reshape((-1, 2))]
 
         self.prev_gray = self.gray
+
+    def track_points(self):
+        """Track the detected features.
+        """
+        if self.features != []:
+            self.step()
+
+        # load the image and create grayscale
+        self.image = cv2.imread(self.imnames[self.current_frame])
+        self.gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+
+        # reshape to fit input format
+        tmp = np.float32(self.features).reshape(-1, 1, 2)
+
+        # calculate optical flow
+        features, status, track_error = cv2.calcOpticalFlowPyrLK(self.prev_gray,
+                                                                 self.gray,
+                                                                 tmp,
+                                                                 None,
+                                                                 **lk_params)
+        # remove points lost
+        self.features = [p for (st, p) in zip(status, features) if st]
+
+        # clean tracks from lost points
+        features = np.array(features.reshape((-1, 2)))
+        for i, f in enumerate(features):
+            self.tracks[i].append(f)
+        ndx = [i for (i, st) in enumerate(status) if not st]
+        ndx.reverse()
+        for i in ndx:
+            self.tracks.pop(i)
+
+        self.prev_gray = self.gray
+
+    def step(self, framenbr=None):
+        """Step to another frame. If no argument is
+
+           given, step to the next frame.
+        """
+        if framenbr is None:
+            self.current_frame = (self.current_frame + 1) % len(self.imnames)
+        else:
+            self.current_frame = framenbr % len(self.imnames)
+
+    def draaw(self):
+        """Draw the current image with points using
+
+           opencv's own drawing functions.
+
+        """
+
+        # draw points as green circles
+        for point in self.features:
+            cv2.circle(self.image, (int(point[0][0]),
+                       int(point[0][1])), 3, (0, 255, 0), -1)
+        cv2.imshow('LKtrack', self.image)
+        cv2.waitKey()
+
+        :
