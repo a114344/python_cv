@@ -89,7 +89,7 @@ class LKTracker(object):
         else:
             self.current_frame = framenbr % len(self.imnames)
 
-    def draaw(self):
+    def draw(self):
         """Draw the current image with points using
 
            opencv's own drawing functions.
@@ -103,4 +103,16 @@ class LKTracker(object):
         cv2.imshow('LKtrack', self.image)
         cv2.waitKey()
 
-        :
+    def track(self):
+        """Generator for stepping through a sequence.
+        """
+        for i in range(len(self.imnames)):
+            if self.features == []:
+                self.detect_points()
+            else:
+                self.track_points()
+
+        # create rgb copy
+        f = np.array(self.features).reshape(-1, 2)
+        im = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
+        yield im, f
