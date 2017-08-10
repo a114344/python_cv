@@ -10,7 +10,8 @@ from PIL import Image
 
 def get_imlist(path):
     """Returns a list of filenames for all
-    jpg images in target directory."""
+       jpg images in target directory.
+    """
 
     return [os.path.join(path, f) for f in os.listdir(path)
             if f.endswith('jpg')]
@@ -57,11 +58,8 @@ def compute_average(imlist):
 
 def plot_2D_boundary(plot_range, points, decisionfcn, labels, values=[0]):
     """Plot range is (xmin, xmax, ymin, ymax), points is a list
-
        of class points, decisionfcn is a function to evaluate,
-
        labels is list of labels that descisionfnc freturns for each class,
-
        values is a list of decision contours to show
        """
     clist = ['b', 'r', 'g', 'k', 'm', 'y']
@@ -82,9 +80,11 @@ def plot_2D_boundary(plot_range, points, decisionfcn, labels, values=[0]):
         d = decisionfcn(points[i][:, 0], points[i][:, 1])
         correct_ndx = labels[i] == d
         incorrect_ndx = labels[i] != d
-        plt.plot(points[i][correct_ndx, 0], points[i][correct_ndx, 1],
+        plt.plot(points[i][correct_ndx, 0],
+                 points[i][correct_ndx, 1],
                  '*',
                  color=clist[i])
-        plt.plot(points[i][incorrect_ndx, 0], points[i][incorrect_ndx, 1],
+        plt.plot(points[i][incorrect_ndx, 0],
+                 points[i][incorrect_ndx, 1],
                  'o',
                  color=clist[i])
