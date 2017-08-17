@@ -8,11 +8,8 @@ import bayes
 
 def build_bayes_graph(im, labels, sigma=1e2, kappa=2):
     """Build a graph from 4-neighborhood of pixels.
-
        Foreground and background is determined from
-
        labels (1 for forground, -1 for background, 0 otherwise)
-
        and is modelled with naive bayes classifers.
     """
     m, n = im.shape[:2]
@@ -66,32 +63,25 @@ def build_bayes_graph(im, labels, sigma=1e2, kappa=2):
     if (i // n) != m - 1:
         edge_wt = kappa * np.exp(-1.0 * np.sum((vim[i] - vim[i+n])**2) / sigma)
         gr.add_edge((i, i+n), wt=edge_wt)
-
     return gr
 
 
 def show_labeling(im, labels):
     """Show image with foreground and background areas.
-
        foreground: labels = 1
-
        background: labels = -1
-
        other: labels = 0
-
     """
     plt.imshow(im)
     plt.contour(labels, [-0.5, 0.5])
     plt.contourf(labels, [-1, -0.5], colors='b', alpha=.25)
     plt.contourf(labels, [0.5, 1], colors='r', alpha=.25)
     plt.axis('off')
-
     return True
 
 
 def cut_graph(gr, imsize):
     """Solve for max flow of graph gr and return binary
-
        labels of resulting segmentation.
     """
     m, n = imsize
@@ -105,5 +95,4 @@ def cut_graph(gr, imsize):
     res = np.zeros(m * n)
     for pos, labels in np.cuts.items()[:-2]:
         res[pos] = label
-
     return res.reshape((m, n))
