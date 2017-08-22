@@ -1,6 +1,5 @@
-"""
-Collection of basic image processing functions.
-"""
+"""Collection of basic image processing functions."""
+
 from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
@@ -75,7 +74,7 @@ def plot_2D_boundary(plot_range, points, decisionfcn, labels, values=[0]):
     # plot contours at values
     plt.contour(xx, yy, zz, values)
 
-    # for each class plot the oints with '*' for correct, 'o' for incorrect
+    # for each class plot the points with '*' for correct, 'o' for incorrect
     for i in range(len(points)):
         d = decisionfcn(points[i][:, 0], points[i][:, 1])
         correct_ndx = labels[i] == d
