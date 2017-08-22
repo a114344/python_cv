@@ -13,7 +13,6 @@ class ClusterNode(object):
 
     def extract_clusters(self, dist):
         """Extract list of sub-tree clusters from hcluster
-
            tree with distance < dist.
         """
         if self.distance < dist:
@@ -22,21 +21,18 @@ class ClusterNode(object):
                 self.right.extract_clusters(dist))
 
     def get_cluster_elements(self):
-        """Return ids for elements in a cluster sub-tree.
-        """
+        """Return ids for elements in a cluster sub-tree."""
         return (self.left.get_cluster_elements() +
                 self.right.get_cluster_elements())
 
     def get_height(self):
         """Return the height of a node, height is sum
-
            of each branch.
         """
         return (self.left.get_height() + self.right.get_height())
 
     def get_depth(self):
         """Return the depth of a node, depth is max of
-
            each child plus own distance.
         """
         return np.max(self.left.get_depth(),
@@ -45,7 +41,6 @@ class ClusterNode(object):
 
     def draw(self, draw, x, y, s, imlist, im):
         """Draw nodes recursively with image thumbnails
-
            for leaf nodes.
         """
         h1 = int(self.left.get_height() * 20 / 2)
@@ -104,8 +99,7 @@ def L1dist(v1, v2):
 
 
 def hcluster(features, distnfcn=L2dist):
-    """Cluster the rows of features using hierarchical clustering.
-    """
+    """Cluster the rows of features using hierarchical clustering."""
     # cache of distance calculations
     distances = {}
 
@@ -144,8 +138,7 @@ def hcluster(features, distnfcn=L2dist):
 
 
 def draw_dendrogram(node, imlist, filename='clusters.jpg'):
-    """Draw a cluster dendrogram and save to file.
-    """
+    """Draw a cluster dendrogram and save to file."""
     # height and width
     rows = node.get_height() * 20
     cols = 1200
@@ -165,5 +158,5 @@ def draw_dendrogram(node, imlist, filename='clusters.jpg'):
     node.draw(draw, 20, rows / 2, s, imlist, im)
     im.save(filename)
     im.show()
-
+    
     return True
